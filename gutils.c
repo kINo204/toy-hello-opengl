@@ -1,6 +1,33 @@
 #include "gutils.h"
 
-GLuint create_shader(GLenum shader_type, const char* shader_src_path)
+GLuint create_program(const char *vspath, const char *fspath)
+{
+	GLuint P = glCreateProgram();
+
+	GLuint VS = create_shader(GL_VERTEX_SHADER, vspath);
+	GLuint FS = create_shader(GL_FRAGMENT_SHADER, fspath);
+
+	glAttachShader(P, VS);
+	glAttachShader(P, FS);
+	glLinkProgram(P);
+
+	int success;
+	glGetProgramiv(P, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		char buf[512];
+		glGetProgramInfoLog(P, sizeof(buf), NULL, buf);
+		gl_shader_err_cback(buf);
+		glDeleteProgram(P);
+		return 0;
+	}
+	glDeleteShader(VS);
+	glDeleteShader(FS);
+
+	return P;
+}
+
+GLuint create_shader(GLenum shader_type, const char *shader_src_path)
 {
 	char buf[512];
 	FILE *fsrc = fopen(shader_src_path, "rb");
@@ -9,7 +36,7 @@ GLuint create_shader(GLenum shader_type, const char* shader_src_path)
 	// printf("%s\n", buf);
 
 	GLuint S = glCreateShader(shader_type);
-	const char* pbuf = buf;
+	const char *pbuf = buf;
 	glShaderSource(S, 1, &pbuf, NULL);
 	glCompileShader(S);
 
@@ -25,21 +52,24 @@ GLuint create_shader(GLenum shader_type, const char* shader_src_path)
 }
 
 // Print the error, leaving the choice to exit or not to the main program.
-void glfw_err_cback(int ecode, const char* info) {
+void glfw_err_cback(int ecode, const char *info)
+{
 	fprintf(stderr, "GLFW Error: %s\n", info);
 }
 
-void gl_shader_err_cback(const char* info) {
+void gl_shader_err_cback(const char *info)
+{
 	fprintf(stderr, "GL Shader Error: %s\n", info);
 }
 
-void glfw_frame_buffer_size_cback(GLFWwindow* wnd, int width, int height) {
+void glfw_frame_buffer_size_cback(GLFWwindow *wnd, int width, int height)
+{
 	glViewport(0, 0, width, height);
 }
 
-extern int cur;
-void glfw_key_cback(GLFWwindow* wnd, int key, int scancode, int action, int mods) {
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-		cur = (cur == 1) ? 0 : 1;
+void glfw_key_cback(GLFWwindow *wnd, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	{
 	}
 }

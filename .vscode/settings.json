@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "gutils.h": "c"
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "d:\\WorkDir\\OpenGL\\hello_world",
+            "binaryPath": "d:\\WorkDir\\OpenGL\\hello_world\\hello_gl.exe",
+            "binaryArgs": []
+        }
+    ]
+}

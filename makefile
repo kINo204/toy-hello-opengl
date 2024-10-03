@@ -11,6 +11,6 @@ run: all
 hello_gl.exe: $(wildcard *.c)
 	@gcc -o $@ $^ lib/glad/gl.c -I $(incdir) $(libdir)/libglfw3dll.a -lgdi32
 
-.PHONY:
+.PHONY: clean
 clean:
 	rm $(wildcard *.exe)
