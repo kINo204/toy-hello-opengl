@@ -26,7 +26,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow *wnd = glfwCreateWindow(1024, 768, "Hello GL!", NULL, NULL);
+	GLFWwindow *wnd = glfwCreateWindow(1024, 1024, "Hello GL!", NULL, NULL);
 	if (!wnd)
 	{
 		glfwTerminate();
@@ -104,6 +104,11 @@ int main()
 	glUniform1i(glGetUniformLocation(P, "our_tex"), 0);
 	glUniform1i(glGetUniformLocation(P, "our_tex1"), 1);
 
+	mat4x4 TransMatrix;
+	mat4x4_identity(TransMatrix);
+	glUseProgram(P);
+	GLuint uni_trans_mat = glGetUniformLocation(P, "trans_mat");
+	glUniformMatrix4fv(uni_trans_mat, 1, GL_FALSE, (GLfloat*)TransMatrix);
 
 	// Main window loop
 	glfwSwapInterval(1);
@@ -114,6 +119,9 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(P); // Constant shading program.
+
+		mat4x4_rotate_Z(TransMatrix, TransMatrix, 0.01f);
+		glUniformMatrix4fv(uni_trans_mat, 1, GL_FALSE, (GLfloat*)TransMatrix);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, TEX[0]);
