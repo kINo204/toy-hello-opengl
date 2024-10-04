@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "gutils.h": "c",
-        "stb_image.h": "c"
+        "stb_image.h": "c",
+        "aclapi.h": "c"
     },
     "makefile.launchConfigurations": [
         {

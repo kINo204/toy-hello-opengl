@@ -1,5 +1,5 @@
 target := hello_gl.exe
-libs := lib/glad/gl.c lib/stb_image.c
+libs := lib/glad/gl.c lib/stb_image.c lib/gutils.c
 devkitdir := C:/Users/kINo/OneDrive/Apps/Cdevkits/w64devkit/x86_64-w64-mingw32
 libdir := $(devkitdir)/lib
 incdir := $(devkitdir)/include
