@@ -22,5 +22,7 @@ void camera_move_forward();
 void camera_move_backward();
 void camera_move_leftward();
 void camera_move_rightward();
+void camera_move_upward();
+void camera_move_downward();
 
 void camera_cursor_cback(GLFWwindow* wnd, double x, double y);

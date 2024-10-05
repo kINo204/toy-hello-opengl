@@ -190,4 +190,8 @@ void process_input(GLFWwindow* wnd) {
 		camera_move_backward();
 	if (glfwGetKey(wnd, GLFW_KEY_D))
 		camera_move_rightward();
+	if (glfwGetKey(wnd, GLFW_KEY_SPACE))
+		camera_move_upward();
+	if (glfwGetKey(wnd, GLFW_KEY_LEFT_SHIFT))
+		camera_move_downward();
 }

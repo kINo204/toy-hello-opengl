@@ -35,6 +35,18 @@ static inline void vec3_mul_scalar(vec3 r, vec3 const v, float f) {
     for (int i = 0; i < 3; i++) { r[i] = v[i] * f; }
 }
 
+void camera_move_upward() {
+    vec3 move;
+    vec3_mul_scalar(move, camera.up, CAMERA_SPEED);
+    vec3_add(camera.pos, camera.pos, move);
+}
+
+void camera_move_downward() {
+    vec3 move;
+    vec3_mul_scalar(move, camera.up, 0.f - CAMERA_SPEED);
+    vec3_add(camera.pos, camera.pos, move);
+}
+
 void camera_move_forward() {
     vec3 move;
     vec3_mul_scalar(move, camera.dir, CAMERA_SPEED);
