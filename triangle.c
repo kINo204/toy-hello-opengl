@@ -135,6 +135,12 @@ void run(GLFWwindow *wnd)
         glfwSwapBuffers(wnd);
         glfwPollEvents();
     }
+
+    geo_destroy(G2);
+    glDeleteProgram(P);
+    glDeleteProgram(P2);
+    geo_terminate();
+    glDeleteTextures(sizeof(TEX) / sizeof(TEX[0]), TEX);
 }
 
 int main()
