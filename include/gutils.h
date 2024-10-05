@@ -28,13 +28,13 @@ typedef struct _Geometry {
 
 void process_input(GLFWwindow* wnd);
 
+GLuint tex_create(const char *img, GLenum channel_type);
+
 void geo_init();
 
 void geo_terminate();
 
 Geometry geo_create(int arr_buf_cfg[], size_t abc_size, GLfloat vertices[], size_t vertices_size, GLuint indices[], size_t indices_size);
-
-void geo_use(Geometry G);
 
 void geo_destroy(Geometry G);
 
@@ -58,6 +58,18 @@ extern GLuint VBOs[GEO_OBJ_MAX];
 extern int vbos_usage[GEO_OBJ_MAX];
 extern GLuint EBOs[GEO_OBJ_MAX];
 extern int ebos_usage[GEO_OBJ_MAX];
+extern GLuint TEXs[GEO_OBJ_MAX];
+extern int texs_usage[GEO_OBJ_MAX];
+
+static inline GLuint tex_alloc() {
+    static int ind = 0;
+    if (ind >= GEO_OBJ_MAX) {
+        fprintf(stderr, "GEO Error: no VAO available!\n");
+        return 0;
+    }
+    texs_usage[ind] = 1;
+    return TEXs[ind++];
+}
 
 static inline GLuint geo_alloc_vao() {
     static int ind = 0;

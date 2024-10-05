@@ -14,8 +14,10 @@ run: all
 
 hello_gl.exe: $(wildcard *.c) $(wildcard lib/*.c) $(libs)
 	@echo building ...
-	@gcc -o $@ $^ -I $(incdir) $(libdir)/libglfw3dll.a -lgdi32 \
-	$(res)
+	@gcc -o $@ $^ \
+	-I $(incdir) \
+	$(libdir)/libglfw3dll.a -lgdi32
+# $(res)
 
 shaders: $(wildcard shaders/*.vert) $(wildcard shaders/*.frag)
 

@@ -6,7 +6,8 @@
         "geodata.h": "c",
         "linmath.h": "c",
         "glfw3.h": "c",
-        "camera.h": "c"
+        "camera.h": "c",
+        "gl.h": "c"
     },
     "makefile.launchConfigurations": [
         {

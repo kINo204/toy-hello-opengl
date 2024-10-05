@@ -1,8 +1,8 @@
 #version 330 core
 
 layout (location = 0) in vec3 v_pos;
-layout (location = 1) in vec3 v_tex_coord;
-out vec3 f_tex_coord;
+layout (location = 1) in vec2 v_tex_coord;
+out vec2 f_tex_coord;
 
 uniform mat4x4 model;
 uniform mat4x4 view;

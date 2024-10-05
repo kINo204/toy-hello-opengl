@@ -9,13 +9,14 @@ void run(GLFWwindow *wnd)
 		cube_cfg, sizeof(cube_cfg),
 		cube_vert, sizeof(cube_vert),
 		NULL, 0);
-	
-	GLuint simple_program = create_program("shaders/pvm.vert", "shaders/pure_color.frag");
+	GLuint simple_program = create_program("shaders/pvm.vert", "shaders/textured.frag");
+	glActiveTexture(GL_TEXTURE0);
+	GLuint texture_box = tex_create("res/textures/container.jpg", GL_RGB);
 
 	camera_init();
 
 	mat4x4 p, v, m1, m2;
-	mat4x4_perspective(p, 1.08f, 1.f, 0.1f, 100.f);
+	mat4x4_perspective(p, 1.047f, 1.f, 0.1f, 100.f);
 	camera_update_view_trans(v);
 
 	float scale_rate = 1.0f;
@@ -23,6 +24,7 @@ void run(GLFWwindow *wnd)
 	mat4x4_translate_in_place(m1, -0.5f, -0.5f, 0.f);
 	mat4x4_scale_aniso(m1, m1, scale_rate, scale_rate, scale_rate);
 	mat4x4_identity(m2);
+	mat4x4_rotate_Z(m2, m2, -0.52f);
 	mat4x4_translate_in_place(m2, 0.6f, 0.6f, 0.f);
 	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
 
@@ -33,7 +35,7 @@ void run(GLFWwindow *wnd)
 	um = glGetUniformLocation(simple_program, "model");
 
 	glUseProgram(simple_program);
-	geo_use(cube);
+	glBindVertexArray(cube->VAO);
 
     glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST);
@@ -56,6 +58,9 @@ void run(GLFWwindow *wnd)
 		// Update PVM transforms.
 		glUniformMatrix4fv(up, 1, GL_FALSE, (GLfloat*)p);
 		glUniformMatrix4fv(uv, 1, GL_FALSE, (GLfloat*)v);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_box);
 
 		glUniformMatrix4fv(um, 1, GL_FALSE, (GLfloat*)m1);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
