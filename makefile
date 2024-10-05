@@ -1,8 +1,11 @@
 target := hello_gl.exe
 libs := lib/glad/gl.c lib/stb_image.c lib/gutils.c
+
 devkitdir := C:/Users/kINo/OneDrive/Apps/Cdevkits/w64devkit/x86_64-w64-mingw32
 libdir := $(devkitdir)/lib
 incdir := $(devkitdir)/include
+
+res := -mwindows res/icons/icon.o
 
 all: $(target)
 
@@ -10,7 +13,7 @@ run: all
 	@$(target)
 
 hello_gl.exe: $(wildcard *.c)
-	@gcc -o $@ $^ $(libs) -I $(incdir) $(libdir)/libglfw3dll.a -lgdi32
+	gcc -o $@ $^ $(libs) -I $(incdir) $(libdir)/libglfw3dll.a -lgdi32 $(res)
 
 .PHONY: clean
 clean:

@@ -22,7 +22,7 @@ void run(GLFWwindow *wnd)
 int main()
 {
 	// STBI init
-	stbi_set_flip_vertically_on_load(1);
+	// stbi_set_flip_vertically_on_load(1);
 
 	// GLFW init
 	glfwSetErrorCallback(glfw_err_cback);
@@ -37,6 +37,14 @@ int main()
 	{
 		glfwTerminate();
 		exit(-1);
+	}
+	GLFWimage wnd_icon;
+	int trash;
+	wnd_icon.pixels = stbi_load("res/textures/awesomeface.png", &(wnd_icon.width), &(wnd_icon.height), &trash, 0);
+	if (!wnd_icon.pixels) {
+		fprintf(stderr, "STBI Error: failed to load wnd icon!\n");
+	} else {
+		glfwSetWindowIcon(wnd, 1, &wnd_icon);
 	}
 	glfwSetFramebufferSizeCallback(wnd, glfw_frame_buffer_size_cback);
 	glfwSetKeyCallback(wnd, glfw_key_cback);
