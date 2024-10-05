@@ -30,7 +30,7 @@ void geo_terminate();
 
 Geometry geo_create(int arr_buf_cfg[], size_t abc_size, GLfloat vertices[], size_t vertices_size, GLuint indices[], size_t indices_size);
 
-void geo_bind(Geometry G);
+void geo_use(Geometry G);
 
 void geo_destroy(Geometry G);
 

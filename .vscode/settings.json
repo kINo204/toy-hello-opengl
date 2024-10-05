@@ -4,7 +4,8 @@
         "stb_image.h": "c",
         "aclapi.h": "c",
         "geodata.h": "c",
-        "linmath.h": "c"
+        "linmath.h": "c",
+        "glfw3.h": "c"
     },
     "makefile.launchConfigurations": [
         {

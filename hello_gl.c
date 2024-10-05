@@ -4,7 +4,13 @@
 void run(GLFWwindow *wnd)
 {
 	geo_init();
-    GLuint P = create_program("shaders/s1.vert", "shaders/s1.frag");
+
+	Geometry cube = geo_create(
+		cube_cfg, sizeof(cube_cfg),
+		cube_vert, sizeof(cube_vert),
+		NULL, 0);
+	
+	GLuint simple_program = create_program("shaders/pure.vert", "shaders/pure_color.frag");
 
     glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST);
@@ -12,6 +18,10 @@ void run(GLFWwindow *wnd)
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glUseProgram(simple_program);
+		geo_use(cube);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(wnd);
         glfwPollEvents();

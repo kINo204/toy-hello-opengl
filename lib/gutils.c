@@ -66,7 +66,7 @@ Geometry geo_create(int arr_buf_cfg[], size_t abc_size, GLfloat vertices[], size
 	return G;
 }
 
-void geo_bind(Geometry G) {
+void geo_use(Geometry G) {
 	glBindVertexArray(G->VAO);
 }
 
