@@ -59,11 +59,26 @@ void run(GLFWwindow *wnd)
     glUniform1i(glGetUniformLocation(P, "our_tex"), 0);
     glUniform1i(glGetUniformLocation(P, "our_tex1"), 1);
 
+    // Coordinate transformations
+    mat4x4 ident, model, view, proj;
+    mat4x4_identity(ident);
+
+    mat4x4_scale_aniso(model, ident, 0.5, 0.5, 0.5);
+
+    mat4x4_identity(view);
+    mat4x4_translate_in_place(view, 0, 0, -0.8);
+    mat4x4_rotate_X(view, view, -0.7);
+
+    mat4x4_perspective(proj, 1.04f, 1.0f, 0.1f, 100.0f);
+
+    GLuint um, uv, up;
+    um = glGetUniformLocation(P, "model");
+    uv = glGetUniformLocation(P, "view");
+    up = glGetUniformLocation(P, "proj");
+
     mat4x4 TransMatrix;
     mat4x4_identity(TransMatrix);
-    glUseProgram(P);
-    GLuint uni_trans_mat = glGetUniformLocation(P, "trans_mat");
-    glUniformMatrix4fv(uni_trans_mat, 1, GL_FALSE, (GLfloat *)TransMatrix);
+    GLuint umytrans = glGetUniformLocation(P, "trans_mat");
 
     // Main window loop
     glfwSwapInterval(1);
@@ -74,9 +89,11 @@ void run(GLFWwindow *wnd)
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(P); // Constant shading program.
-
         mat4x4_rotate_Z(TransMatrix, TransMatrix, 0.01f);
-        glUniformMatrix4fv(uni_trans_mat, 1, GL_FALSE, (GLfloat *)TransMatrix);
+        glUniformMatrix4fv(umytrans, 1, GL_FALSE, (GLfloat *)TransMatrix);
+        glUniformMatrix4fv(um, 1, GL_FALSE, (GLfloat*)model);
+        glUniformMatrix4fv(uv, 1, GL_FALSE, (GLfloat*)view);
+        glUniformMatrix4fv(up, 1, GL_FALSE, (GLfloat*)proj);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, TEX[0]);
@@ -90,11 +107,6 @@ void run(GLFWwindow *wnd)
         glfwSwapBuffers(wnd);
         glfwPollEvents();
     }
-
-    // Exit program
-	geo_terminate();
-    glDeleteTextures(sizeof(TEX), TEX);
-    glDeleteProgram(P);
 }
 
 int main()

@@ -2,7 +2,9 @@
     "files.associations": {
         "gutils.h": "c",
         "stb_image.h": "c",
-        "aclapi.h": "c"
+        "aclapi.h": "c",
+        "geodata.h": "c",
+        "linmath.h": "c"
     },
     "makefile.launchConfigurations": [
         {
