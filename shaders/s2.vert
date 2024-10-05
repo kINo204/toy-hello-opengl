@@ -11,6 +11,6 @@ uniform mat4x4 proj;
 uniform mat4x4 trans_mat;
 
 void main() {
-	gl_Position = proj * view * model * trans_mat * vec4(pos, 1.0);
+	gl_Position = proj * view * trans_mat * model * vec4(pos, 1.0);
 	our_tex_coord = tex_coord;
 }
