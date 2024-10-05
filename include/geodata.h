@@ -1,21 +1,21 @@
 #pragma once
 #include "gutils.h"
 
-int g1_cfg[] = {3, 3, 2};
-GLfloat g1_vertices[] = {
+int square_cfg[] = {3, 3, 2};
+GLfloat square_vert[] = {
     // positions          // colors           // texture coords
     0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
     -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
 };
-GLuint g1_indices[] = {
+GLuint square_ind[] = {
     0, 1, 2,
     0, 2, 3
 };
 
-int g2_cfg[] = {3, 2};
-float g2_vertices[] = {
+int cube_cfg[] = {3, 2};
+float cube_vert[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
