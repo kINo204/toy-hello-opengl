@@ -10,17 +10,57 @@ void run(GLFWwindow *wnd)
 		cube_vert, sizeof(cube_vert),
 		NULL, 0);
 	
-	GLuint simple_program = create_program("shaders/pure.vert", "shaders/pure_color.frag");
+	GLuint simple_program = create_program("shaders/pvm.vert", "shaders/pure_color.frag");
+
+	camera_init();
+
+	mat4x4 p, v, m1, m2;
+	mat4x4_perspective(p, 1.08f, 1.f, 0.1f, 100.f);
+	camera_update_view_trans(v);
+
+	float scale_rate = 1.0f;
+	mat4x4_identity(m1);
+	mat4x4_translate_in_place(m1, -0.5f, -0.5f, 0.f);
+	mat4x4_scale_aniso(m1, m1, scale_rate, scale_rate, scale_rate);
+	mat4x4_identity(m2);
+	mat4x4_translate_in_place(m2, 0.6f, 0.6f, 0.f);
+	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
+
+	
+	GLuint up, uv, um;
+	up = glGetUniformLocation(simple_program, "proj");
+	uv = glGetUniformLocation(simple_program, "view");
+	um = glGetUniformLocation(simple_program, "model");
+
+	glUseProgram(simple_program);
+	geo_use(cube);
 
     glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST);
-    while (!glfwWindowShouldClose(wnd))
+	GLfloat delta_time = 0.f;
+	GLfloat lastframe_time = 0.f;
+	while (!glfwWindowShouldClose(wnd))
     {
+		GLfloat curframe_time = glfwGetTime();
+		delta_time = curframe_time - lastframe_time;
+		lastframe_time = curframe_time;
+		CAMERA_SPEED = 3.5f * delta_time;
+
+		process_input(wnd);
+
+		camera_update_view_trans(v);
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(simple_program);
-		geo_use(cube);
+		// Update PVM transforms.
+		glUniformMatrix4fv(up, 1, GL_FALSE, (GLfloat*)p);
+		glUniformMatrix4fv(uv, 1, GL_FALSE, (GLfloat*)v);
+
+		glUniformMatrix4fv(um, 1, GL_FALSE, (GLfloat*)m1);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glUniformMatrix4fv(um, 1, GL_FALSE, (GLfloat*)m2);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(wnd);

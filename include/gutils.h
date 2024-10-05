@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "camera.h"
+
 typedef struct _Geometry {
     // objects
     GLuint VAO;
@@ -23,6 +25,8 @@ typedef struct _Geometry {
     GLuint* indices;
     size_t indices_size;
 } *Geometry;
+
+void process_input(GLFWwindow* wnd);
 
 void geo_init();
 

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "gutils.h"
 
 int square_cfg[] = {3, 3, 2};

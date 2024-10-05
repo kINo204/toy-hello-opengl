@@ -144,7 +144,23 @@ void glfw_frame_buffer_size_cback(GLFWwindow *wnd, int width, int height)
 
 void glfw_key_cback(GLFWwindow *wnd, int key, int scancode, int action, int mods)
 {
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+}
+
+void process_input(GLFWwindow* wnd) {
+	if (glfwGetKey(wnd, GLFW_KEY_W))
 	{
+		camera_move_forward();
+	}
+	if (glfwGetKey(wnd, GLFW_KEY_A))
+	{
+		camera_move_leftward();
+	}
+	if (glfwGetKey(wnd, GLFW_KEY_S))
+	{
+		camera_move_backward();
+	}
+	if (glfwGetKey(wnd, GLFW_KEY_D))
+	{
+		camera_move_rightward();
 	}
 }

@@ -5,7 +5,8 @@
         "aclapi.h": "c",
         "geodata.h": "c",
         "linmath.h": "c",
-        "glfw3.h": "c"
+        "glfw3.h": "c",
+        "camera.h": "c"
     },
     "makefile.launchConfigurations": [
         {
