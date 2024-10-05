@@ -46,6 +46,8 @@ void glfw_frame_buffer_size_cback(GLFWwindow *wnd, int width, int height);
 
 void glfw_key_cback(GLFWwindow* wnd, int key, int scancode, int action, int mods);
 
+void glfw_mouse_cback(GLFWwindow *wnd, int button, int action, int mods);
+
 GLuint create_program(const char *vspath, const char *fspath);
 
 // Static

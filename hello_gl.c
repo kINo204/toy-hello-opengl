@@ -21,11 +21,11 @@ void run(GLFWwindow *wnd)
 
 	float scale_rate = 1.0f;
 	mat4x4_identity(m1);
-	mat4x4_translate_in_place(m1, -0.5f, -0.5f, 0.f);
+	mat4x4_translate_in_place(m1, -0.5f, 0.f, -0.5f);
 	mat4x4_scale_aniso(m1, m1, scale_rate, scale_rate, scale_rate);
 	mat4x4_identity(m2);
-	mat4x4_rotate_Z(m2, m2, -0.52f);
-	mat4x4_translate_in_place(m2, 0.6f, 0.6f, 0.f);
+	mat4x4_rotate_Y(m2, m2, -0.52f);
+	mat4x4_translate_in_place(m2, 0.6f, 0.f, 0.6f);
 	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
 
 	
@@ -87,7 +87,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow *wnd = glfwCreateWindow(1024, 1024, "Hello GL!", NULL, NULL);
+	GLFWwindow *wnd = glfwCreateWindow(1400, 1400, "Hello GL!", NULL, NULL);
 	if (!wnd)
 	{
 		glfwTerminate();
@@ -101,6 +101,9 @@ int main()
 	} else {
 		glfwSetWindowIcon(wnd, 1, &wnd_icon);
 	}
+	glfwSetInputMode(wnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(wnd, camera_cursor_cback);
+	glfwSetMouseButtonCallback(wnd, glfw_mouse_cback);
 	glfwSetFramebufferSizeCallback(wnd, glfw_frame_buffer_size_cback);
 	glfwSetKeyCallback(wnd, glfw_key_cback);
 	glfwMakeContextCurrent(wnd);

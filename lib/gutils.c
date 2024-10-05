@@ -168,23 +168,26 @@ void glfw_frame_buffer_size_cback(GLFWwindow *wnd, int width, int height)
 
 void glfw_key_cback(GLFWwindow *wnd, int key, int scancode, int action, int mods)
 {
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+		camera_cursor_is_first = 1;
+		glfwSetInputMode(wnd, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+}
+
+void glfw_mouse_cback(GLFWwindow *wnd, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_RELEASE) {
+		glfwSetInputMode(wnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 }
 
 void process_input(GLFWwindow* wnd) {
+	// camera movement control
 	if (glfwGetKey(wnd, GLFW_KEY_W))
-	{
 		camera_move_forward();
-	}
 	if (glfwGetKey(wnd, GLFW_KEY_A))
-	{
 		camera_move_leftward();
-	}
 	if (glfwGetKey(wnd, GLFW_KEY_S))
-	{
 		camera_move_backward();
-	}
 	if (glfwGetKey(wnd, GLFW_KEY_D))
-	{
 		camera_move_rightward();
-	}
 }

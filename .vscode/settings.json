@@ -7,7 +7,9 @@
         "linmath.h": "c",
         "glfw3.h": "c",
         "camera.h": "c",
-        "gl.h": "c"
+        "gl.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c"
     },
     "makefile.launchConfigurations": [
         {
