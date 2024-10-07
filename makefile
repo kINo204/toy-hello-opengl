@@ -14,7 +14,7 @@ run: all
 
 hello_gl.exe: $(wildcard *.c) $(wildcard lib/*.c) $(libs)
 	@echo building ...
-	@gcc -o $@ $^ \
+	@gcc -g -o $@ $^ \
 	-I $(incdir) \
 	$(libdir)/libglfw3dll.a -lgdi32
 # $(res)
