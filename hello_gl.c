@@ -4,20 +4,34 @@
 void run(GLFWwindow *wnd)
 {
 	geo_init();
-	camera_init();
 
 	// Create entities: programs, textures, geometries
-	Geometry cube = geo_create(
-		cube_cfg, sizeof(cube_cfg),
-		cube_vert, sizeof(cube_vert),
-		NULL, 0);
-	GLuint simple_program = create_program("shaders/pvm.vert", "shaders/textured.frag");
-	glActiveTexture(GL_TEXTURE0);
-	GLuint texture_box = tex_create("res/textures/container.jpg", GL_RGB);
+	Geometry obj = geo_create(cfg_obj, sizeof(cfg_obj),
+							v_obj, sizeof(v_obj),
+							NULL, 0);
+
+	Geometry src = geo_create(cfg_src, sizeof(cfg_src),
+							v_src, sizeof(v_src),
+							NULL, 0);
+
+	GLuint prog_obj = create_program("shaders/pvm.vert", "shaders/object.frag");
+	GLuint u_obj_proj, u_obj_view, u_obj_model, u_obj_obj_color, u_obj_light_color;
+	u_obj_proj = glGetUniformLocation(prog_obj, "proj");
+	u_obj_view = glGetUniformLocation(prog_obj, "view");
+	u_obj_model = glGetUniformLocation(prog_obj, "model");
+	u_obj_obj_color = glGetUniformLocation(prog_obj, "obj_color");
+	u_obj_light_color = glGetUniformLocation(prog_obj, "light_color");
+
+	GLuint prog_src = create_program("shaders/pvm.vert", "shaders/source.frag");
+	GLuint u_src_proj, u_src_view, u_src_model;
+	u_src_proj = glGetUniformLocation(prog_src, "proj");
+	u_src_view = glGetUniformLocation(prog_src, "view");
+	u_src_model = glGetUniformLocation(prog_src, "model");
 
 	// Init trans mat: projection, view
 	mat4x4 p, v;
-	mat4x4_perspective(p, 1.047f, 1.f, 0.1f, 100.f);
+	mat4x4_perspective(p, 1.047f, 1.f, 0.1f, 100.f); // Fixed at the time.
+	camera_init();
 	camera_update_view_trans(v);
 
 	// Init trans mat: model(s)
@@ -31,20 +45,13 @@ void run(GLFWwindow *wnd)
 	mat4x4_translate_in_place(m2, 0.6f, 0.f, 0.6f);
 	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
 
-	// Init shader uniforms references.
-	GLuint up, uv, um;
-	up = glGetUniformLocation(simple_program, "proj");
-	uv = glGetUniformLocation(simple_program, "view");
-	um = glGetUniformLocation(simple_program, "model");
-
-	// Start drawing procedure.
-	glUseProgram(simple_program);
-	glBindVertexArray(cube->VAO);
-
+	// Begin drawing procedure.
     glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST); // Enable depth test when drawing.
+
 	GLfloat delta_time = 0.f;
 	GLfloat lastframe_time = 0.f;
+
 	while (!glfwWindowShouldClose(wnd))
     {
 		GLfloat curframe_time = glfwGetTime();
@@ -53,23 +60,26 @@ void run(GLFWwindow *wnd)
 		CAMERA_SPEED = 3.5f * delta_time;
 
 		process_input(wnd);
-
 		camera_update_view_trans(v);
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Update PVM transforms.
-		glUniformMatrix4fv(up, 1, GL_FALSE, (GLfloat*)p);
-		glUniformMatrix4fv(uv, 1, GL_FALSE, (GLfloat*)v);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_box);
-
-		glUniformMatrix4fv(um, 1, GL_FALSE, (GLfloat*)m1);
+		// Perform drawing.
+		/* Note: uniform variables MUST be passed EACH TIME, and AFTER USING ITS PROGRAM! */
+		glUseProgram(prog_obj);
+			glUniformMatrix4fv(u_obj_proj, 1, GL_FALSE, (GLfloat*)p);
+			glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m1);
+			glUniformMatrix4fv(u_obj_view, 1, GL_FALSE, (GLfloat*)v);
+			glUniform3f(u_obj_obj_color, 1.f, 0.5f, 0.31f);
+			glUniform3f(u_obj_light_color, 1.f, 1.f, 1.f);
+		glBindVertexArray(obj->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		glUniformMatrix4fv(um, 1, GL_FALSE, (GLfloat*)m2);
+		glUseProgram(prog_src);
+			glUniformMatrix4fv(u_src_proj, 1, GL_FALSE, (GLfloat*)p);
+			glUniformMatrix4fv(u_src_model, 1, GL_FALSE, (GLfloat*)m2);
+			glUniformMatrix4fv(u_src_view, 1, GL_FALSE, (GLfloat*)v);
+		glBindVertexArray(src->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(wnd);

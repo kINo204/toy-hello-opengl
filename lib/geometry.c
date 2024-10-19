@@ -21,7 +21,10 @@ void geo_terminate() {
 	tex_terminate();
 }
 
-Geometry geo_create(int arr_buf_cfg[], size_t abc_size, GLfloat vertices[], size_t vertices_size, GLuint indices[], size_t indices_size) {
+Geometry geo_create(int arr_buf_cfg[], size_t abc_size,
+					GLfloat vertices[], size_t vertices_size,
+					GLuint indices[], size_t indices_size)
+{
 	Geometry G = (Geometry) malloc(sizeof(struct _Geometry));
 	G->VAO = geo_alloc_vao();
 	G->VBO = geo_alloc_vbo();
