@@ -9,7 +9,9 @@
         "camera.h": "c",
         "gl.h": "c",
         "stdlib.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "geometry.h": "c",
+        "tex.h": "c"
     },
     "makefile.launchConfigurations": [
         {
