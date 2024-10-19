@@ -1,29 +1,5 @@
 #include "../include/gutils.h"
 
-static GLuint _create_shader(GLenum shader_type, const char *shader_src_path)
-{
-	char buf[512];
-	FILE *fsrc = fopen(shader_src_path, "rb");
-	int end = fread(buf, 1, sizeof(buf), fsrc);
-	buf[end * sizeof(char)] = '\0';
-	// printf("%s\n", buf);
-
-	GLuint S = glCreateShader(shader_type);
-	const char *pbuf = buf;
-	glShaderSource(S, 1, &pbuf, NULL);
-	glCompileShader(S);
-
-	int success;
-	glGetShaderiv(S, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(S, sizeof(buf), NULL, buf);
-		gl_shader_err_cback(buf);
-	}
-
-	return S;
-}
-
 // Print the error, leaving the choice to exit or not to the main program.
 void glfw_err_cback(int ecode, const char *info)
 {
@@ -68,6 +44,30 @@ void process_input(GLFWwindow* wnd) {
 		camera_move_upward();
 	if (glfwGetKey(wnd, GLFW_KEY_LEFT_SHIFT))
 		camera_move_downward();
+}
+
+static GLuint _create_shader(GLenum shader_type, const char *shader_src_path)
+{
+	char buf[512];
+	FILE *fsrc = fopen(shader_src_path, "rb");
+	int end = fread(buf, 1, sizeof(buf), fsrc);
+	buf[end * sizeof(char)] = '\0';
+	// printf("%s\n", buf);
+
+	GLuint S = glCreateShader(shader_type);
+	const char *pbuf = buf;
+	glShaderSource(S, 1, &pbuf, NULL);
+	glCompileShader(S);
+
+	int success;
+	glGetShaderiv(S, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(S, sizeof(buf), NULL, buf);
+		gl_shader_err_cback(buf);
+	}
+
+	return S;
 }
 
 GLuint create_program(const char *vspath, const char *fspath)
