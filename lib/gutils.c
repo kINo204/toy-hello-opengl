@@ -48,7 +48,7 @@ void process_input(GLFWwindow* wnd) {
 
 static GLuint _create_shader(GLenum shader_type, const char *shader_src_path)
 {
-	char buf[512];
+	char buf[1024];
 	FILE *fsrc = fopen(shader_src_path, "rb");
 	int end = fread(buf, 1, sizeof(buf), fsrc);
 	buf[end * sizeof(char)] = '\0';

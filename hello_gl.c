@@ -15,12 +15,15 @@ void run(GLFWwindow *wnd)
 							NULL, 0);
 
 	GLuint prog_obj = create_program("shaders/pvm.vert", "shaders/object.frag");
-	GLuint u_obj_proj, u_obj_view, u_obj_model, u_obj_obj_color, u_obj_light_color;
+	GLuint u_obj_proj, u_obj_view, u_obj_model,
+		u_obj_obj_color, u_obj_light_color, u_obj_light_pos, u_obj_camera_pos;
 	u_obj_proj = glGetUniformLocation(prog_obj, "proj");
 	u_obj_view = glGetUniformLocation(prog_obj, "view");
 	u_obj_model = glGetUniformLocation(prog_obj, "model");
 	u_obj_obj_color = glGetUniformLocation(prog_obj, "obj_color");
 	u_obj_light_color = glGetUniformLocation(prog_obj, "light_color");
+	u_obj_light_pos = glGetUniformLocation(prog_obj, "light_pos");
+	u_obj_camera_pos = glGetUniformLocation(prog_obj, "camera_pos");
 
 	GLuint prog_src = create_program("shaders/pvm.vert", "shaders/source.frag");
 	GLuint u_src_proj, u_src_view, u_src_model;
@@ -38,11 +41,12 @@ void run(GLFWwindow *wnd)
 	mat4x4 m1, m2;
 	float scale_rate = 1.0f;
 	mat4x4_identity(m1);
-	mat4x4_translate_in_place(m1, -0.5f, 0.f, -0.5f);
+	mat4x4_translate_in_place(m1, -0.5f, -1.5f, -0.5f);
 	mat4x4_scale_aniso(m1, m1, scale_rate, scale_rate, scale_rate);
+	scale_rate = 0.2f;
 	mat4x4_identity(m2);
-	mat4x4_rotate_Y(m2, m2, -0.52f);
 	mat4x4_translate_in_place(m2, 0.6f, 0.f, 0.6f);
+	mat4x4_rotate_Y(m2, m2, -0.52f);
 	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
 
 	// Begin drawing procedure.
@@ -51,6 +55,17 @@ void run(GLFWwindow *wnd)
 
 	GLfloat delta_time = 0.f;
 	GLfloat lastframe_time = 0.f;
+
+	// Setting invariant states.
+	glUseProgram(prog_obj);
+		glUniformMatrix4fv(u_obj_proj, 1, GL_FALSE, (GLfloat*)p);
+		glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m1);
+		glUniform3f(u_obj_obj_color, 1.f, 0.5f, 0.31f);
+		glUniform3f(u_obj_light_color, 1.f, 1.f, 1.f);
+		glUniform3f(u_obj_light_pos, 0.6f, 0.f, 0.6f);
+	glUseProgram(prog_src);
+		glUniformMatrix4fv(u_src_proj, 1, GL_FALSE, (GLfloat*)p);
+		glUniformMatrix4fv(u_src_model, 1, GL_FALSE, (GLfloat*)m2);
 
 	while (!glfwWindowShouldClose(wnd))
     {
@@ -65,19 +80,14 @@ void run(GLFWwindow *wnd)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Perform drawing.
-		/* Note: uniform variables MUST be passed EACH TIME, and AFTER USING ITS PROGRAM! */
+		/* Note: uniform variables MUST be passed afting binding the corresponding program! */
 		glUseProgram(prog_obj);
-			glUniformMatrix4fv(u_obj_proj, 1, GL_FALSE, (GLfloat*)p);
-			glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m1);
 			glUniformMatrix4fv(u_obj_view, 1, GL_FALSE, (GLfloat*)v);
-			glUniform3f(u_obj_obj_color, 1.f, 0.5f, 0.31f);
-			glUniform3f(u_obj_light_color, 1.f, 1.f, 1.f);
+			glUniform3fv(u_obj_camera_pos, 1, camera.pos);
 		glBindVertexArray(obj->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glUseProgram(prog_src);
-			glUniformMatrix4fv(u_src_proj, 1, GL_FALSE, (GLfloat*)p);
-			glUniformMatrix4fv(u_src_model, 1, GL_FALSE, (GLfloat*)m2);
 			glUniformMatrix4fv(u_src_view, 1, GL_FALSE, (GLfloat*)v);
 		glBindVertexArray(src->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);

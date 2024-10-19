@@ -3,7 +3,7 @@
 #include "gutils.h"
 
 typedef struct _Camera {
-    vec3 pos;
+    vec3 pos; // coords in world
     vec3 dir;
     double yaw;
     double pitch;
