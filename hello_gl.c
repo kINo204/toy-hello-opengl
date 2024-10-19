@@ -4,7 +4,9 @@
 void run(GLFWwindow *wnd)
 {
 	geo_init();
+	camera_init();
 
+	// Create entities: programs, textures, geometries
 	Geometry cube = geo_create(
 		cube_cfg, sizeof(cube_cfg),
 		cube_vert, sizeof(cube_vert),
@@ -13,12 +15,13 @@ void run(GLFWwindow *wnd)
 	glActiveTexture(GL_TEXTURE0);
 	GLuint texture_box = tex_create("res/textures/container.jpg", GL_RGB);
 
-	camera_init();
-
-	mat4x4 p, v, m1, m2;
+	// Init trans mat: projection, view
+	mat4x4 p, v;
 	mat4x4_perspective(p, 1.047f, 1.f, 0.1f, 100.f);
 	camera_update_view_trans(v);
 
+	// Init trans mat: model(s)
+	mat4x4 m1, m2;
 	float scale_rate = 1.0f;
 	mat4x4_identity(m1);
 	mat4x4_translate_in_place(m1, -0.5f, 0.f, -0.5f);
@@ -28,17 +31,18 @@ void run(GLFWwindow *wnd)
 	mat4x4_translate_in_place(m2, 0.6f, 0.f, 0.6f);
 	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
 
-	
+	// Init shader uniforms references.
 	GLuint up, uv, um;
 	up = glGetUniformLocation(simple_program, "proj");
 	uv = glGetUniformLocation(simple_program, "view");
 	um = glGetUniformLocation(simple_program, "model");
 
+	// Start drawing procedure.
 	glUseProgram(simple_program);
 	glBindVertexArray(cube->VAO);
 
     glfwSwapInterval(1);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); // Enable depth test when drawing.
 	GLfloat delta_time = 0.f;
 	GLfloat lastframe_time = 0.f;
 	while (!glfwWindowShouldClose(wnd))

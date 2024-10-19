@@ -3,7 +3,7 @@
 
 Camera camera;
 
-float CAMERA_SPEED = 0.f;
+float CAMERA_SPEED = 0.f; // moving speed of the camera.
 
 void camera_init() {
     // default pos vector
