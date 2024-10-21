@@ -16,13 +16,17 @@ void run(GLFWwindow *wnd)
 
 	GLuint prog_obj = create_program("shaders/pvm.vert", "shaders/object.frag");
 	GLuint u_obj_proj, u_obj_view, u_obj_model,
-		u_obj_obj_color, u_obj_light_color, u_obj_light_pos, u_obj_camera_pos;
+		u_obj_obj_ambient, u_obj_obj_diffuse, u_obj_obj_specular, u_obj_obj_shininess,
+		u_obj_light_color, u_obj_light_pos, u_obj_camera_pos;
 	u_obj_proj = glGetUniformLocation(prog_obj, "proj");
 	u_obj_view = glGetUniformLocation(prog_obj, "view");
 	u_obj_model = glGetUniformLocation(prog_obj, "model");
-	u_obj_obj_color = glGetUniformLocation(prog_obj, "obj_color");
-	u_obj_light_color = glGetUniformLocation(prog_obj, "light_color");
-	u_obj_light_pos = glGetUniformLocation(prog_obj, "light_pos");
+	u_obj_obj_ambient = glGetUniformLocation(prog_obj, "material.ambient");
+	u_obj_obj_diffuse = glGetUniformLocation(prog_obj, "material.diffuse");
+	u_obj_obj_specular = glGetUniformLocation(prog_obj, "material.specular");
+	u_obj_obj_shininess = glGetUniformLocation(prog_obj, "material.shininess");
+	u_obj_light_color = glGetUniformLocation(prog_obj, "light.color");
+	u_obj_light_pos = glGetUniformLocation(prog_obj, "light.pos");
 	u_obj_camera_pos = glGetUniformLocation(prog_obj, "camera_pos");
 
 	GLuint prog_src = create_program("shaders/pvm.vert", "shaders/source.frag");
@@ -60,7 +64,10 @@ void run(GLFWwindow *wnd)
 	glUseProgram(prog_obj);
 		glUniformMatrix4fv(u_obj_proj, 1, GL_FALSE, (GLfloat*)p);
 		glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m1);
-		glUniform3f(u_obj_obj_color, 1.f, 0.5f, 0.31f);
+		glUniform3f(u_obj_obj_ambient, 1.f, 0.5f, 0.31f);
+		glUniform3f(u_obj_obj_diffuse, 1.f, 0.5f, 0.31f);
+		glUniform3f(u_obj_obj_specular, 0.5f, 0.5f, 0.5f);
+		glUniform1f(u_obj_obj_shininess, 32.f);
 		glUniform3f(u_obj_light_color, 1.f, 1.f, 1.f);
 		glUniform3f(u_obj_light_pos, 0.6f, 0.f, 0.6f);
 	glUseProgram(prog_src);
