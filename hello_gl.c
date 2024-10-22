@@ -6,7 +6,11 @@ void run(GLFWwindow *wnd)
 	geo_init();
 
 	// Create entities: programs, textures, geometries
-	Geometry obj = geo_create(cfg_obj, sizeof(cfg_obj),
+	Geometry obj = geo_create(cfg_ball, sizeof(cfg_ball),
+							v_ball, sizeof(v_ball),
+							NULL, 0);
+
+	Geometry obj2 = geo_create(cfg_obj, sizeof(cfg_obj),
 							v_obj, sizeof(v_obj),
 							NULL, 0);
 
@@ -46,14 +50,13 @@ void run(GLFWwindow *wnd)
 
 	// Init trans mat: model(s)
 	mat4x4 m1, m2;
-	float scale_rate = 1.0f;
+	float scale_rate = 0.5f;
 	mat4x4_identity(m1);
-	mat4x4_translate_in_place(m1, -0.5f, -1.5f, -0.5f);
+	mat4x4_translate_in_place(m1, -0.5f, 0.f, 0.f);
 	mat4x4_scale_aniso(m1, m1, scale_rate, scale_rate, scale_rate);
-	scale_rate = 0.2f;
+	scale_rate = 0.5f;
 	mat4x4_identity(m2);
-	mat4x4_translate_in_place(m2, 0.6f, 0.f, 0.6f);
-	mat4x4_rotate_Y(m2, m2, -0.52f);
+	mat4x4_translate_in_place(m2, 0.5f, 0.f, 0.f);
 	mat4x4_scale_aniso(m2, m2, scale_rate, scale_rate, scale_rate);
 
 	// Begin drawing procedure.
@@ -66,7 +69,6 @@ void run(GLFWwindow *wnd)
 	// Setting invariant states.
 	glUseProgram(prog_obj);
 		glUniformMatrix4fv(u_obj_proj, 1, GL_FALSE, (GLfloat*)p);
-		glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m1);
 		glUniform3f(u_obj_obj_ambient, 1.f, 0.5f, 0.31f);
 		glUniform3f(u_obj_obj_diffuse, 1.f, 0.5f, 0.31f);
 		glUniform3f(u_obj_obj_specular, 0.5f, 0.5f, 0.5f);
@@ -75,9 +77,9 @@ void run(GLFWwindow *wnd)
 		glUniform3f(u_obj_light_diffuse, 0.5f, 0.5f, 0.5f);
 		glUniform3f(u_obj_light_specular, 1.f, 1.f, 1.f);
 		glUniform3f(u_obj_light_pos, 0.6f, 0.f, 0.6f);
-	glUseProgram(prog_src);
-		glUniformMatrix4fv(u_src_proj, 1, GL_FALSE, (GLfloat*)p);
-		glUniformMatrix4fv(u_src_model, 1, GL_FALSE, (GLfloat*)m2);
+	// glUseProgram(prog_src);
+	// 	glUniformMatrix4fv(u_src_proj, 1, GL_FALSE, (GLfloat*)p);
+	// 	glUniformMatrix4fv(u_src_model, 1, GL_FALSE, (GLfloat*)m2);
 
 	while (!glfwWindowShouldClose(wnd))
     {
@@ -96,13 +98,19 @@ void run(GLFWwindow *wnd)
 		glUseProgram(prog_obj);
 			glUniformMatrix4fv(u_obj_view, 1, GL_FALSE, (GLfloat*)v);
 			glUniform3fv(u_obj_camera_pos, 1, camera.pos);
+			glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m1);
+
 		glBindVertexArray(obj->VAO);
+		glDrawArrays(GL_TRIANGLES, 0, len_ball);
+
+			glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m2);
+		glBindVertexArray(obj2->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		glUseProgram(prog_src);
-			glUniformMatrix4fv(u_src_view, 1, GL_FALSE, (GLfloat*)v);
-		glBindVertexArray(src->VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		// glUseProgram(prog_src);
+		// 	glUniformMatrix4fv(u_src_view, 1, GL_FALSE, (GLfloat*)v);
+		// glBindVertexArray(src->VAO);
+		// glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(wnd);
         glfwPollEvents();

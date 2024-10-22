@@ -1,70 +1,91 @@
 import numpy as np
 
-def midpoint(p1, p2):
-    """计算两个点的中点"""
-    return (p1 + p2) / 2
+times = 8
+norm_scale = 100 * (4 ** times)
 
-def subdivide_face(vertices, depth):
-    """递归细分一个面"""
-    if depth == 0:
-        return vertices
-    else:
-        # 计算三个新顶点，它们是原顶点的中点
-        mid1 = midpoint(vertices[0], vertices[1])
-        mid2 = midpoint(vertices[1], vertices[2])
-        mid3 = midpoint(vertices[2], vertices[0])
-        
-        # 递归细分新的三角形
-        new_vertices = subdivide_face([mid1, mid2, mid3], depth-1)
-        new_vertices.extend(subdivide_face([mid1, vertices[0], mid3], depth-1))
-        new_vertices.extend(subdivide_face([mid2, mid1, vertices[1]], depth-1))
-        new_vertices.extend(subdivide_face([mid3, mid2, vertices[2]], depth-1))
-        return new_vertices
+V = [
+	[0, 0, 1],
+	[0, 0.94, -0.33],
+	[-0.82, -0.47, -0.33],
 
-def subdivide_tetrahedron(vertices, depth):
-    """递归细分四面体"""
-    if depth == 0:
-        return vertices
-    else:
-        # 计算四面体的6条边的中点
-        mid_points = [midpoint(vertices[i], vertices[(i+1)%4]) for i in range(4)]
-        # 计算四面体的4个面的中心点
-        center_points = [midpoint(mid_points[i], mid_points[(i+2)%4]) for i in range(4)]
-        
-        # 递归细分每个更小的四面体
-        new_vertices = []
-        for i in range(4):
-            sub_tetra = [vertices[i], mid_points[i], center_points[i], mid_points[(i+1)%4]]
-            new_vertices.extend(subdivide_tetrahedron(sub_tetra, depth-1))
-        
-        return new_vertices
+	[0, 0, 1],
+	[0, 0.94, -0.33],
+	[0.82, -0.47, -0.33],
 
-# 定义单位四面体的顶点
-tetrahedron_vertices = np.array([
-    [1, 1, 1],  # 顶点A
-    [1, -1, -1], # 顶点B
-    [-1, 1, -1], # 顶点C
-    [-1, -1, 1]  # 顶点D
-])
+	[0, 0, 1],
+	[0.82, -0.47, -0.33],
+	[-0.82, -0.47, -0.33],
 
-# 递归细分四面体
-subdivided_vertices = subdivide_tetrahedron(tetrahedron_vertices, 2)
+	[0, 0.94, -0.33],
+	[-0.82, -0.47, -0.33],
+	[0.82, -0.47, -0.33],
+]
 
-# 归一化顶点坐标到单位范围
-normalized_vertices = np.linalg.norm(subdivided_vertices, axis=1)
-unit_vertices = subdivided_vertices / np.max(normalized_vertices)
+Vt = []
 
-# 将顶点组织成三角形
-triangles = []
-for i in range(len(unit_vertices) - 2):
-    triangles.append([unit_vertices[i], unit_vertices[i+1], unit_vertices[i+2]])
+def NORM(p):
+	mod = (p[0]**2 + p[1]**2 + p[2]**2)**0.5
+	res = []
+	res.append(p[0] / mod)
+	res.append(p[1] / mod)
+	res.append(p[2] / mod)
+	return res
 
-print("len_ball = {:};".format(len(triangles) * 3))
-print("cfg_ball = { 3 };")
-print("v_ball = {")
-for triangle in triangles:
-    for i in range(0, 3):
-        print("\t{:.4f}f,".format(triangle[i][0]),end='')
-        print("{:.4f}f,".format(triangle[i][1]),end='')
-        print("{:.4f}f,".format(triangle[i][2]))
-print("};")
+def GENNORM(ps):
+	[A, B, C] = ps
+	AB = np.array(B) - np.array(A)
+	AC = np.array(C) - np.array(A)
+	norm = np.cross(AB, AC)
+	if np.dot(np.array(A), norm) < 0:
+		norm = - norm
+	return norm * norm_scale
+
+def format():
+	with open('output.txt', 'w') as F:
+		F.write(f"int len_ball = {len(V):};\n")
+		F.write("int cfg_ball[] = {3,3};\n")
+		F.write("float v_ball[] = {\n")
+		for v in V:
+			F.write(f"\t{v[0]:.6f}f, {v[1]:.6f}f, {v[2]:.6f}f, {v[3]:.6f}f, {v[4]:.6f}f, {v[5]:.6f}f,\n")
+		F.write("};")
+
+for i in range(0, times):
+	# Num of faces.
+	N = int(len(V) / 3)
+	for i in range(0, N):
+		i1 = 3 * i
+		i2 = i1 + 1
+		i3 = i2 + 1
+		vs = [
+			V[i1], V[i2], V[i3],
+			NORM(np.array(V[i1])+np.array(V[i2])),
+			NORM(np.array(V[i1])+np.array(V[i3])),
+			NORM(np.array(V[i2])+np.array(V[i3])),
+		]
+		Vt.append(vs[0].copy())
+		Vt.append(vs[3].copy())
+		Vt.append(vs[4].copy())
+		Vt.append(vs[1].copy())
+		Vt.append(vs[3].copy())
+		Vt.append(vs[5].copy())
+		Vt.append(vs[2].copy())
+		Vt.append(vs[4].copy())
+		Vt.append(vs[5].copy())
+		Vt.append(vs[3].copy())
+		Vt.append(vs[4].copy())
+		Vt.append(vs[5].copy())
+	V = Vt
+	Vt = []
+
+N = int(len(V) / 3)
+for i in range(0, N):
+	i1 = 3 * i
+	i2 = i1 + 1
+	i3 = i2 + 1
+	p = [V[i1], V[i2], V[i3]]
+	norm = GENNORM(p)
+	for a in range(0, 3):
+		for b in range(0, 3):
+			p[a].append(float(norm[b]))
+
+format()
