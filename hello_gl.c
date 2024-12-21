@@ -6,11 +6,8 @@ void run(GLFWwindow *wnd)
 	geo_init();
 
 	// Create entities: programs, textures, geometries
-	// Geometry obj = geo_create(cfg_ball, sizeof(cfg_ball),
-	// 						v_ball, sizeof(v_ball),
-	// 						NULL, 0);
-	Geometry obj = geo_create(cfg_obj, sizeof(cfg_obj),
-							v_obj, sizeof(v_obj),
+	Geometry obj = geo_create(cfg_ball, sizeof(cfg_ball),
+							v_ball, sizeof(v_ball),
 							NULL, 0);
 
 	Geometry obj2 = geo_create(cfg_obj, sizeof(cfg_obj),
@@ -120,7 +117,7 @@ void run(GLFWwindow *wnd)
 
 		glUniformMatrix4fv(u_ls_model, 1, GL_FALSE, (GLfloat*)m1);
 		glBindVertexArray(obj->VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, len_ball);
 
 		glUniformMatrix4fv(u_ls_model, 1, GL_FALSE, (GLfloat*)m2);
 		glBindVertexArray(obj2->VAO);
@@ -155,7 +152,7 @@ void run(GLFWwindow *wnd)
 
 		glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat *)m1);
 		glBindVertexArray(obj->VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, len_ball);
 
 		glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat*)m2);
 		glBindVertexArray(obj2->VAO);

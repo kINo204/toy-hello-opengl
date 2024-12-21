@@ -2,6 +2,7 @@
 
 #include "gutils.h"
 
+#include "ball.h"
 int cfg_obj[] = {3, 3};
 float v_obj[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
