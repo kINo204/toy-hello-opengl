@@ -10,12 +10,12 @@ void camera_init() {
     // default pos vector
     camera.pos[0] = 0.0f;
     camera.pos[1] = 0.0f;
-    camera.pos[2] = 3.0f;
+    camera.pos[2] = 0.0f;
 
     // default dir vector
     camera.dir[0] = 0.0f;
     camera.dir[1] = 0.0f;
-    camera.dir[2] = -1.f;
+    camera.dir[2] = -1.0f;
     camera.yaw = -1.5708; // -90 deg
     camera.pitch = 0;
     
