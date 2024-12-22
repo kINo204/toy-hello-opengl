@@ -40,7 +40,7 @@ void main() {
         for(int y = -1; y <= 1; ++y)
         {
             float pcf_depth = texture(shadow_map, proj_coords.xy + vec2(x, y) * texelSize).r; 
-            shadow += current_depth - 0.001f > pcf_depth ? 1.0 : 0.0;        
+            shadow += current_depth - 0.005f > pcf_depth ? 1.0 : 0.0;        
         }    
     }
     shadow /= 9.0;
@@ -54,7 +54,7 @@ void main() {
         for(int y = -1; y <= 1; ++y)
         {
             float pcf_depth = texture(shadow_map2, proj_coords2.xy + vec2(x, y) * texelSize2).r; 
-            shadow2 += current_depth2 - 0.001f > pcf_depth ? 1.0 : 0.0;        
+            shadow2 += current_depth2 - 0.005f > pcf_depth ? 1.0 : 0.0;        
         }    
     }
     shadow2 /= 9.0;
@@ -66,12 +66,10 @@ void main() {
     vec3 color = vec3(0)
         + light.ambient * material.ambient
         + light2.ambient * material.ambient
-        // + (1) * (
         + (1 - shadow) * (
         light.diffuse * material.diffuse * max(dot(normalize(norm), normalize(light.pos - frag_pos)), 0)
         + light.specular * pow(max(dot(view_dir, refl_dir), 0), material.shininess) * material.specular 
         )
-        // + (1) * (
         + (1 - shadow2) * (
         light2.diffuse * material.diffuse * max(dot(normalize(norm), normalize(light2.pos - frag_pos)), 0)
         + light2.specular * pow(max(dot(view_dir, refl_dir2), 0), material.shininess) * material.specular
