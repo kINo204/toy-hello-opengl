@@ -1,6 +1,11 @@
 #include "include/gutils.h"
 #include "include/geodata.h" // Contains vertices data, do not multi-ref!
 
+// Light source positon.
+GLfloat light_pos_x = 0.9f, light_pos_y = 0.4f, light_pos_z = 0.3f;
+GLfloat light2_pos_x = 0.9f, light2_pos_y = 0.5f, light2_pos_z = 0.2f;
+
+
 void run(GLFWwindow *wnd)
 {
 	geo_init();
@@ -18,17 +23,15 @@ void run(GLFWwindow *wnd)
 							v_src, sizeof(v_src),
 							NULL, 0);
 
-	// Light source positon.
-	GLfloat light_pos_x = 0.9f, light_pos_y = 0.4f, light_pos_z = 0.3f;
-
 	GLuint prog_obj = create_program("shaders/pvm.vert", "shaders/object.frag");
 	GLuint u_obj_proj, u_obj_view, u_obj_model,
 		u_obj_obj_ambient, u_obj_obj_diffuse, u_obj_obj_specular, u_obj_obj_shininess,
 		u_obj_light_ambient, u_obj_light_diffuse, u_obj_light_specular, u_obj_light_pos,
-		u_obj_camera_pos, u_obj_view_light;
+		u_obj_camera_pos, u_obj_view_light, u_obj_view_light2;
 	u_obj_proj = glGetUniformLocation(prog_obj, "proj");
 	u_obj_view = glGetUniformLocation(prog_obj, "view");
 	u_obj_view_light = glGetUniformLocation(prog_obj, "view_light_space");
+	u_obj_view_light2 = glGetUniformLocation(prog_obj, "view_light_space2");
 	u_obj_model = glGetUniformLocation(prog_obj, "model");
 	u_obj_obj_ambient = glGetUniformLocation(prog_obj, "material.ambient");
 	u_obj_obj_diffuse = glGetUniformLocation(prog_obj, "material.diffuse");
@@ -38,6 +41,10 @@ void run(GLFWwindow *wnd)
 	u_obj_light_diffuse = glGetUniformLocation(prog_obj, "light.diffuse");
 	u_obj_light_specular = glGetUniformLocation(prog_obj, "light.specular");
 	u_obj_light_pos = glGetUniformLocation(prog_obj, "light.pos");
+	GLuint u_obj_light2_ambient = glGetUniformLocation(prog_obj, "light2.ambient");
+	GLuint u_obj_light2_diffuse = glGetUniformLocation(prog_obj, "light2.diffuse");
+	GLuint u_obj_light2_specular = glGetUniformLocation(prog_obj, "light2.specular");
+	GLuint u_obj_light2_pos = glGetUniformLocation(prog_obj, "light2.pos");
 	u_obj_camera_pos = glGetUniformLocation(prog_obj, "camera_pos");
 
 	GLuint prog_src = create_program("shaders/pvm.vert", "shaders/source.frag");
@@ -53,10 +60,20 @@ void run(GLFWwindow *wnd)
 
 	// Shadow utils.
 	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-	GLuint depth_map_fbo, depth_map;
-	glGenFramebuffers(1, &depth_map_fbo);
-	glGenTextures(1, &depth_map);
-	glBindTexture(GL_TEXTURE_2D, depth_map);
+	GLuint depth_map_fbo[2], depth_map[2];
+	glGenFramebuffers(2, &depth_map_fbo[0]);
+	glGenTextures(2, &depth_map[0]);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, depth_map[0]);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, depth_map[1]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -70,8 +87,9 @@ void run(GLFWwindow *wnd)
 	camera_update_view_trans(v);
 
 	// Update light view trans-mat.
-	mat4x4 vl;
+	mat4x4 vl, vl2;
 	mat4x4_look_at(vl, (vec3){light_pos_x, light_pos_y, light_pos_z}, (vec3){0.f, 0.f, 0.f}, camera.up);
+	mat4x4_look_at(vl2, (vec3){light2_pos_x, light2_pos_y, light2_pos_z}, (vec3){0.f, 0.f, 0.f}, camera.up);
 
 	// Init trans mat: model(s)
 	mat4x4 m1, m2;
@@ -102,18 +120,36 @@ void run(GLFWwindow *wnd)
 		process_input(wnd);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Bind the shadow framebuffer.
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo[0]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map[0], 0);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+			glClear(GL_DEPTH_BUFFER_BIT);
+
 		// Draw the shadow framebuffer.
 		glUseProgram(prog_light_space);
 			glUniformMatrix4fv(u_ls_proj, 1, GL_FALSE, (GLfloat*)p);
 			glUniformMatrix4fv(u_ls_view_light, 1, GL_FALSE, (GLfloat*)vl);
 
+		glUniformMatrix4fv(u_ls_model, 1, GL_FALSE, (GLfloat*)m1);
+		glBindVertexArray(obj->VAO);
+		glDrawArrays(GL_TRIANGLES, 0, len_ball);
+
+		glUniformMatrix4fv(u_ls_model, 1, GL_FALSE, (GLfloat*)m2);
+		glBindVertexArray(obj2->VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 		// Bind the shadow framebuffer.
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, depth_map_fbo[1]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_map[1], 0);
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 			glClear(GL_DEPTH_BUFFER_BIT);
+
+		// Draw the shadow framebuffer.
+		glUniformMatrix4fv(u_ls_view_light, 1, GL_FALSE, (GLfloat*)vl2);
 
 		glUniformMatrix4fv(u_ls_model, 1, GL_FALSE, (GLfloat*)m1);
 		glBindVertexArray(obj->VAO);
@@ -131,12 +167,16 @@ void run(GLFWwindow *wnd)
 		glViewport(0, 0, wnd_size[0], wnd_size[1]);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, depth_map);
+		glBindTexture(GL_TEXTURE_2D, depth_map[0]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, depth_map[1]);
 		camera_update_view_trans(v);
 
 		// Perform drawing.
 		/* Note: uniform variables MUST be passed afting binding the corresponding program! */
 		glUseProgram(prog_obj);
+			glUniform1i(glGetUniformLocation(prog_obj, "shadow_map"), 0);
+			glUniform1i(glGetUniformLocation(prog_obj, "shadow_map2"), 1);
 			glUniform3f(u_obj_obj_ambient, 1.f, 0.5f, 0.31f);
 			glUniform3f(u_obj_obj_diffuse, 1.f, 0.5f, 0.31f);
 			glUniform3f(u_obj_obj_specular, 0.5f, 0.5f, 0.5f);
@@ -145,9 +185,14 @@ void run(GLFWwindow *wnd)
 			glUniform3f(u_obj_light_diffuse, 0.5f, 0.5f, 0.5f);
 			glUniform3f(u_obj_light_specular, 1.f, 1.f, 1.f);
 			glUniform3f(u_obj_light_pos, light_pos_x, light_pos_y, light_pos_z);
+			glUniform3f(u_obj_light2_ambient, 0.2f, 0.2f, 0.2f);
+			glUniform3f(u_obj_light2_diffuse, 0.5f, 0.5f, 0.5f);
+			glUniform3f(u_obj_light2_specular, 1.f, 1.f, 1.f);
+			glUniform3f(u_obj_light2_pos, light2_pos_x, light2_pos_y, light2_pos_z);
 			glUniformMatrix4fv(u_obj_proj, 1, GL_FALSE, (GLfloat *)p);
 			glUniformMatrix4fv(u_obj_view, 1, GL_FALSE, (GLfloat *)v);
 			glUniformMatrix4fv(u_obj_view_light, 1, GL_FALSE, (GLfloat *)vl);
+			glUniformMatrix4fv(u_obj_view_light2, 1, GL_FALSE, (GLfloat *)vl2);
 			glUniform3fv(u_obj_camera_pos, 1, camera.pos);
 
 		glUniformMatrix4fv(u_obj_model, 1, GL_FALSE, (GLfloat *)m1);
