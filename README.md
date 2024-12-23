@@ -1,12 +1,7 @@
-# Toy Hello OpenGL
+# 作业3
 
-A practice project of BUAA computer graphics course. (containing course homeworks, DO NOT USE!)
+运行示例
 
-Thanks to the great tutorial on [https://learnopengl.com/](https://github.com/JoeyDeVries/LearnOpenGL), the project follows tutorial steps on its website, each branch
-for a single unit.
+![running](D:\WorkDir\OpenGL\hello_world\res\img\running.png)
 
-## Usage
-
-Run `make` or `make all` to build the binary, or use `make run` to build and run the binary.
-
-Click on the binary to run directly on Windows.
+方法：通过创建一个材质并绑定到帧缓存对象从光源角度进行一次深度绘制，保留相对光源的最小深度，在第二次绘制时比对上一次记录即可知道是否为阴影覆盖部分。应用了简单的模糊阴影边界方法，让边界更柔和。
