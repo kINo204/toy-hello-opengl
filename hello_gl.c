@@ -9,6 +9,7 @@ GLfloat light2_pos_x = 0.9f, light2_pos_y = 0.5f, light2_pos_z = 0.2f;
 void run(GLFWwindow *wnd)
 {
 	geo_init();
+	tex_init();
 
 	// Create entities: programs, textures, geometries
 	Geometry obj = geo_create(cfg_ball, sizeof(cfg_ball),
@@ -20,6 +21,8 @@ void run(GLFWwindow *wnd)
 	Geometry src = geo_create(cfg_src, sizeof(cfg_src),
 							v_src, sizeof(v_src),
 							NULL, 0);
+
+	GLuint pic = tex_create("res/textures/id.jpg", GL_RGB);
 
 	GLuint prog_obj = create_program("shaders/pvm.vert", "shaders/object.frag");
 	GLuint prog_obj_simple = create_program("shaders/pvm.vert", "shaders/object_simple.frag");
@@ -192,6 +195,8 @@ void run(GLFWwindow *wnd)
 		glBindTexture(GL_TEXTURE_2D, depth_map[1]);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cube_tex);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, pic);
 		camera_update_view_trans(v);
 
 		// Perform real drawing.
@@ -228,6 +233,7 @@ void run(GLFWwindow *wnd)
 			glUniform1i(glGetUniformLocation(prog, "shadow_map"), 0);
 			glUniform1i(glGetUniformLocation(prog, "shadow_map2"), 1);
 			glUniform1i(glGetUniformLocation(prog, "envmap"), 2);
+			glUniform1i(glGetUniformLocation(prog, "tex"), 3);
 			glUniform3f(glGetUniformLocation(prog, "light[0].ambient"), 0.2f, 0.2f, 0.2f);
 			glUniform3f(glGetUniformLocation(prog, "light[0].diffuse"), 0.5f, 0.5f, 0.5f);
 			glUniform3f(glGetUniformLocation(prog, "light[0].specular"), 1.f, 1.f, 1.f);

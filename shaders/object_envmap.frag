@@ -24,6 +24,7 @@ uniform Light light[2];
 uniform sampler2D shadow_map;
 uniform sampler2D shadow_map2;
 uniform samplerCube envmap;
+uniform sampler2D tex;
 
 uniform vec3 camera_pos;
 
@@ -79,7 +80,10 @@ void main() {
         ;
     if (dot(norm, vec3(-1, 0, 0)) > 0.f) {
         // Put envmap here.
-        frag_color = mix(vec4(color, material.alpha), vec4(vec3(texture(envmap, vec3(-apos.x,-apos.y,apos.z))), 1), 0.5f);
+        frag_color = vec4(vec3(texture(envmap, vec3(-apos.x,-apos.y,apos.z))), 1);
+        return;
+    } else if (dot(norm, vec3(1, 0, 0)) > 0.f) {
+        frag_color = texture(tex, vec2(0.5f-apos.z, -apos.y));
         return;
     } else {
         frag_color =
