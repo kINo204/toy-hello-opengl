@@ -72,6 +72,8 @@ void run(GLFWwindow *wnd)
 	// Begin drawing procedure.
     glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST); // Enable depth test when drawing.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 	GLfloat delta_time = 0.f;
@@ -144,36 +146,37 @@ void run(GLFWwindow *wnd)
 		glUseProgram(prog_obj);
 			glUniform1i(glGetUniformLocation(prog_obj, "shadow_map"), 0);
 			glUniform1i(glGetUniformLocation(prog_obj, "shadow_map2"), 1);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[0].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[0].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[0].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[0].pos"), light_pos_x, light_pos_y, light_pos_z);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[1].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[1].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[1].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog_obj, "light[1].pos"), light2_pos_x, light2_pos_y, light2_pos_z);
+			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "proj"), 1, GL_FALSE, (GLfloat *)p);
+			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view"), 1, GL_FALSE, (GLfloat *)v);
+			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view_light_space[0]"), 1, GL_FALSE, (GLfloat *)vl);
+			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view_light_space[1]"), 1, GL_FALSE, (GLfloat *)vl2);
+			glUniform3fv(glGetUniformLocation(prog_obj, "camera_pos"), 1, camera.pos);
+
+		glUniformMatrix4fv(glGetUniformLocation(prog_obj, "model"), 1, GL_FALSE, (GLfloat *)m1);
 			glUniform3f(glGetUniformLocation(prog_obj, "material.ambient"), 1.f, 0.5f, 0.31f);
 			glUniform3f(glGetUniformLocation(prog_obj, "material.diffuse"), 1.f, 0.5f, 0.31f);
 			glUniform3f(glGetUniformLocation(prog_obj, "material.specular"), 0.5f, 0.5f, 0.5f);
 			glUniform1f(glGetUniformLocation(prog_obj, "material.shininess"), 32.f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light.ambient"), 0.2f, 0.2f, 0.2f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light.diffuse"), 0.5f, 0.5f, 0.5f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light.specular"), 1.f, 1.f, 1.f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light.pos"), light_pos_x, light_pos_y, light_pos_z);
-			glUniform3f(glGetUniformLocation(prog_obj, "light2.ambient"), 0.2f, 0.2f, 0.2f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light2.diffuse"), 0.5f, 0.5f, 0.5f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light2.specular"), 1.f, 1.f, 1.f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light2.pos"), light2_pos_x, light2_pos_y, light2_pos_z);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "proj"), 1, GL_FALSE, (GLfloat *)p);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view"), 1, GL_FALSE, (GLfloat *)v);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view_light_space"), 1, GL_FALSE, (GLfloat *)vl);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view_light_space2"), 1, GL_FALSE, (GLfloat *)vl2);
-			glUniform3fv(glGetUniformLocation(prog_obj, "camera_pos"), 1, camera.pos);
-
-		glUniformMatrix4fv(glGetUniformLocation(prog_obj, "model"), 1, GL_FALSE, (GLfloat *)m1);
+			glUniform1f(glGetUniformLocation(prog_obj, "material.alpha"), 1.f);
 		glBindVertexArray(obj->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, len_ball);
 
 		glUniformMatrix4fv(glGetUniformLocation(prog_obj, "model"), 1, GL_FALSE, (GLfloat*)m2);
+			glUniform3f(glGetUniformLocation(prog_obj, "material.ambient"), 0.24f, 1.f, 0.78f);
+			glUniform3f(glGetUniformLocation(prog_obj, "material.diffuse"), 0.24f, 1.f, 0.78f);
+			glUniform3f(glGetUniformLocation(prog_obj, "material.specular"), 0.5f, 0.5f, 0.5f);
+			glUniform1f(glGetUniformLocation(prog_obj, "material.shininess"), 32.f);
+			glUniform1f(glGetUniformLocation(prog_obj, "material.alpha"), 0.5f);
 		glBindVertexArray(obj2->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// glUseProgram(prog_src);
-		// 	glUniformMatrix4fv(u_src_view, 1, GL_FALSE, (GLfloat*)v);
-		// glBindVertexArray(src->VAO);
-		// glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwSwapBuffers(wnd);
         glfwPollEvents();
