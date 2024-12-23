@@ -1,12 +1,25 @@
-# Toy Hello OpenGL
+# BUAA计算机图形学课程实验作业
 
-A practice project of BUAA computer graphics course. (containing course homeworks, DO NOT USE!)
+本仓库的不同分支是按照内容的不同而布置的，具体内容见分支名。其中包含课程作业**指定任务**内容的分支形如“hwN”，内容如下表：
 
-Thanks to the great tutorial on [https://learnopengl.com/](https://github.com/JoeyDeVries/LearnOpenGL), the project follows tutorial steps on its website, each branch
-for a single unit.
+| 序号 | 指定任务内容                               |
+| ---- | ------------------------------------------ |
+| hw1  | 创建窗口、自动旋转立方体、2D形状放置到内部 |
+| hw2  | 相机封装的坐标系变换                       |
+| hw3  | 递归细分绘制球面、两个光源光照、阴影效果   |
+| hw4  | 半透明立方米                               |
+| hw5  | 环境映射、信息贴图                         |
 
-## Usage
+切换到对应分支，运行`make clean`来清空目标，`make`来构建目标，`make run`来构建并运行目标；Windows系统上也可以直接双击`hello_gl.exe`文件来运行。
 
-Run `make` or `make all` to build the binary, or use `make run` to build and run the binary.
+从hw2开始可以通过相机进行观察，操作方式如下：
 
-Click on the binary to run directly on Windows.
+| 按键   | 动作 |
+| ------ | ---- |
+| W      | 前进 |
+| A      | 左移 |
+| S      | 右移 |
+| D      | 后退 |
+| SPACE  | 上升 |
+| LSHIFT | 下降 |
+
