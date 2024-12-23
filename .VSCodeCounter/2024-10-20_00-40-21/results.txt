@@ -1,0 +1,50 @@
+Date : 2024-10-20 00:40:21
+Directory : d:\WorkDir\OpenGL\hello_world
+Total : 17 files,  8701 codes, 34 comments, 203 blanks, all 8938 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C        |         12 |      8,656 |         33 |        183 |      8,872 |
+| GLSL     |          3 |         20 |          0 |          7 |         27 |
+| Makefile |          1 |         18 |          1 |          7 |         26 |
+| Markdown |          1 |          7 |          0 |          6 |         13 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                              | files      | code       | comment    | blank      | total      |
++---------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                 |         17 |      8,701 |         34 |        203 |      8,938 |
+| . (Files)                                         |          3 |        130 |         12 |         34 |        176 |
+| include                                           |          5 |        193 |          4 |         39 |        236 |
+| lib                                               |          6 |      8,358 |         18 |        123 |      8,499 |
+| lib (Files)                                       |          5 |        259 |         15 |         48 |        322 |
+| lib\glad                                          |          1 |      8,099 |          3 |         75 |      8,177 |
+| shaders                                           |          3 |         20 |          0 |          7 |         27 |
++---------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                          | language | code       | comment    | blank      | total      |
++---------------------------------------------------+----------+------------+------------+------------+------------+
+| d:\WorkDir\OpenGL\hello_world\README.md           | Markdown |          7 |          0 |          6 |         13 |
+| d:\WorkDir\OpenGL\hello_world\hello_gl.c          | C        |        105 |         11 |         21 |        137 |
+| d:\WorkDir\OpenGL\hello_world\include\camera.h    | C        |         21 |          0 |          7 |         28 |
+| d:\WorkDir\OpenGL\hello_world\include\geodata.h   | C        |         80 |          0 |         13 |         93 |
+| d:\WorkDir\OpenGL\hello_world\include\geometry.h  | C        |         55 |          3 |          9 |         67 |
+| d:\WorkDir\OpenGL\hello_world\include\gutils.h    | C        |         18 |          1 |          5 |         24 |
+| d:\WorkDir\OpenGL\hello_world\include\tex.h       | C        |         19 |          0 |          5 |         24 |
+| d:\WorkDir\OpenGL\hello_world\lib\camera.c        | C        |         84 |          6 |         18 |        108 |
+| d:\WorkDir\OpenGL\hello_world\lib\geometry.c      | C        |         64 |          3 |         10 |         77 |
+| d:\WorkDir\OpenGL\hello_world\lib\glad\gl.c       | C        |      8,099 |          3 |         75 |      8,177 |
+| d:\WorkDir\OpenGL\hello_world\lib\gutils.c        | C        |         80 |          3 |         16 |         99 |
+| d:\WorkDir\OpenGL\hello_world\lib\stb_image.c     | C        |          2 |          0 |          0 |          2 |
+| d:\WorkDir\OpenGL\hello_world\lib\tex.c           | C        |         29 |          3 |          4 |         36 |
+| d:\WorkDir\OpenGL\hello_world\makefile            | Makefile |         18 |          1 |          7 |         26 |
+| d:\WorkDir\OpenGL\hello_world\shaders\object.frag | GLSL     |          7 |          0 |          3 |         10 |
+| d:\WorkDir\OpenGL\hello_world\shaders\pvm.vert    | GLSL     |          8 |          0 |          2 |         10 |
+| d:\WorkDir\OpenGL\hello_world\shaders\source.frag | GLSL     |          5 |          0 |          2 |          7 |
+| Total                                             |          |      8,701 |         34 |        203 |      8,938 |
++---------------------------------------------------+----------+------------+------------+------------+------------+
