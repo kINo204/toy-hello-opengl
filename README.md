@@ -1,12 +1,7 @@
-# Toy Hello OpenGL
+# 作业4
 
-A practice project of BUAA computer graphics course. (containing course homeworks, DO NOT USE!)
+运行示例
 
-Thanks to the great tutorial on [https://learnopengl.com/](https://github.com/JoeyDeVries/LearnOpenGL), the project follows tutorial steps on its website, each branch
-for a single unit.
+![running](D:\WorkDir\OpenGL\hello_world\res\img\running.png)
 
-## Usage
-
-Run `make` or `make all` to build the binary, or use `make run` to build and run the binary.
-
-Click on the binary to run directly on Windows.
+方法：简单设置`glEnable(GL_BLEND)`并且配置BLENDING函数，并给物体引入alpha属性，并设置到片元着色器。
