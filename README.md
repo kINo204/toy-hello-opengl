@@ -1,12 +1,7 @@
-# Toy Hello OpenGL
+# 作业5
 
-A practice project of BUAA computer graphics course. (containing course homeworks, DO NOT USE!)
+运行示例
 
-Thanks to the great tutorial on [https://learnopengl.com/](https://github.com/JoeyDeVries/LearnOpenGL), the project follows tutorial steps on its website, each branch
-for a single unit.
+![running](D:\WorkDir\OpenGL\hello_world\res\img\running.png)
 
-## Usage
-
-Run `make` or `make all` to build the binary, or use `make run` to build and run the binary.
-
-Click on the binary to run directly on Windows.
+方法：先从要设置环境映射的面中心，按相机视线反射方向进行一遍绘制，然后如前述阴影绘制后，在正式绘制时判断该面并从材质中获取颜色值。信息贴图即普通的贴图。
