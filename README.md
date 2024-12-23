@@ -1,12 +1,7 @@
-# Toy Hello OpenGL
+# 作业2
 
-A practice project of BUAA computer graphics course. (containing course homeworks, DO NOT USE!)
+运行示例
 
-Thanks to the great tutorial on [https://learnopengl.com/](https://github.com/JoeyDeVries/LearnOpenGL), the project follows tutorial steps on its website, each branch
-for a single unit.
+![running](D:\WorkDir\OpenGL\hello_world\res\img\running.png)
 
-## Usage
-
-Run `make` or `make all` to build the binary, or use `make run` to build and run the binary.
-
-Click on the binary to run directly on Windows.
+在场景内放置了两个箱子，并设置了纹理。主要实现了相机的功能，通过追踪相机的位置和方向来在每次绘制前更新View矩阵即可。相机相关实现位于`lib/camera.c`中
