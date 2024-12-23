@@ -22,6 +22,8 @@ void run(GLFWwindow *wnd)
 							NULL, 0);
 
 	GLuint prog_obj = create_program("shaders/pvm.vert", "shaders/object.frag");
+	GLuint prog_obj_simple = create_program("shaders/pvm.vert", "shaders/object_simple.frag");
+	GLuint prog_obj_envmap = create_program("shaders/pvm.vert", "shaders/object_envmap.frag");
 	GLuint prog_src = create_program("shaders/pvm.vert", "shaders/source.frag");
 	GLuint prog_light_space = create_program("shaders/light_space.vert", "shaders/empty.frag");
 
@@ -31,7 +33,6 @@ void run(GLFWwindow *wnd)
 	glGenFramebuffers(2, &depth_map_fbo[0]);
 	glGenTextures(2, &depth_map[0]);
 
-	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, depth_map[0]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -39,13 +40,27 @@ void run(GLFWwindow *wnd)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depth_map[1]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// Environment mapping utils.
+	GLuint cube_tex, cube_fbo;
+	glGenFramebuffers(1, &cube_fbo);
+	glGenTextures(1, &cube_tex);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cube_tex);
+	for (GLuint i = 0; i < 6; ++i)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	// Init trans mat: projection, view
 	mat4x4 p, v;
@@ -72,8 +87,6 @@ void run(GLFWwindow *wnd)
 	// Begin drawing procedure.
     glfwSwapInterval(1);
     glEnable(GL_DEPTH_TEST); // Enable depth test when drawing.
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 	GLfloat delta_time = 0.f;
@@ -88,6 +101,44 @@ void run(GLFWwindow *wnd)
 
 		process_input(wnd);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Bind the cube framebuffer.
+		glBindFramebuffer(GL_FRAMEBUFFER, cube_fbo);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, cube_tex, 0);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		GLuint prog = prog_obj_simple;
+		glUseProgram(prog);
+			glUniform3f(glGetUniformLocation(prog, "light[0].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].pos"), light_pos_x, light_pos_y, light_pos_z);
+			glUniform3f(glGetUniformLocation(prog, "light[1].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].pos"), light2_pos_x, light2_pos_y, light2_pos_z);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "proj"), 1, GL_FALSE, (GLfloat *)p);
+			mat4x4 v_cube;
+			vec3 cube_pos = {0.15f, 0.f, 0.f}, cube_target = {0.f, 0.f, 0.f};
+			vec3_reflect(cube_target, camera.dir, (vec3){-1.f, 0.f, 0.f});
+			vec3_add(cube_target, cube_pos, cube_target);
+			mat4x4_look_at(v_cube, cube_pos, cube_target, camera.up);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view"), 1, GL_FALSE, (GLfloat *)v_cube);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view_light_space[0]"), 1, GL_FALSE, (GLfloat *)vl);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view_light_space[1]"), 1, GL_FALSE, (GLfloat *)vl2);
+			glUniform3fv(glGetUniformLocation(prog, "camera_pos"), 1, cube_pos);
+
+		glUniformMatrix4fv(glGetUniformLocation(prog, "model"), 1, GL_FALSE, (GLfloat *)m1);
+			glUniform3f(glGetUniformLocation(prog, "material.ambient"), 1.f, 0.5f, 0.31f);
+			glUniform3f(glGetUniformLocation(prog, "material.diffuse"), 1.f, 0.5f, 0.31f);
+			glUniform3f(glGetUniformLocation(prog, "material.specular"), 0.5f, 0.5f, 0.5f);
+			glUniform1f(glGetUniformLocation(prog, "material.shininess"), 32.f);
+			glUniform1f(glGetUniformLocation(prog, "material.alpha"), 1.f);
+		glBindVertexArray(obj->VAO);
+		glDrawArrays(GL_TRIANGLES, 0, len_ball);
+
 
 		// Bind the shadow framebuffer.
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -139,42 +190,64 @@ void run(GLFWwindow *wnd)
 		glBindTexture(GL_TEXTURE_2D, depth_map[0]);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, depth_map[1]);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cube_tex);
 		camera_update_view_trans(v);
 
-		// Perform drawing.
+		// Perform real drawing.
 		/* Note: uniform variables MUST be passed afting binding the corresponding program! */
-		glUseProgram(prog_obj);
-			glUniform1i(glGetUniformLocation(prog_obj, "shadow_map"), 0);
-			glUniform1i(glGetUniformLocation(prog_obj, "shadow_map2"), 1);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[0].ambient"), 0.2f, 0.2f, 0.2f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[0].diffuse"), 0.5f, 0.5f, 0.5f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[0].specular"), 1.f, 1.f, 1.f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[0].pos"), light_pos_x, light_pos_y, light_pos_z);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[1].ambient"), 0.2f, 0.2f, 0.2f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[1].diffuse"), 0.5f, 0.5f, 0.5f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[1].specular"), 1.f, 1.f, 1.f);
-			glUniform3f(glGetUniformLocation(prog_obj, "light[1].pos"), light2_pos_x, light2_pos_y, light2_pos_z);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "proj"), 1, GL_FALSE, (GLfloat *)p);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view"), 1, GL_FALSE, (GLfloat *)v);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view_light_space[0]"), 1, GL_FALSE, (GLfloat *)vl);
-			glUniformMatrix4fv(glGetUniformLocation(prog_obj, "view_light_space[1]"), 1, GL_FALSE, (GLfloat *)vl2);
-			glUniform3fv(glGetUniformLocation(prog_obj, "camera_pos"), 1, camera.pos);
+		prog = prog_obj;
+		glUseProgram(prog);
+			glUniform1i(glGetUniformLocation(prog, "shadow_map"), 0);
+			glUniform1i(glGetUniformLocation(prog, "shadow_map2"), 1);
+			glUniform3f(glGetUniformLocation(prog, "light[0].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].pos"), light_pos_x, light_pos_y, light_pos_z);
+			glUniform3f(glGetUniformLocation(prog, "light[1].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].pos"), light2_pos_x, light2_pos_y, light2_pos_z);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "proj"), 1, GL_FALSE, (GLfloat *)p);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view"), 1, GL_FALSE, (GLfloat *)v);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view_light_space[0]"), 1, GL_FALSE, (GLfloat *)vl);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view_light_space[1]"), 1, GL_FALSE, (GLfloat *)vl2);
+			glUniform3fv(glGetUniformLocation(prog, "camera_pos"), 1, camera.pos);
 
-		glUniformMatrix4fv(glGetUniformLocation(prog_obj, "model"), 1, GL_FALSE, (GLfloat *)m1);
-			glUniform3f(glGetUniformLocation(prog_obj, "material.ambient"), 1.f, 0.5f, 0.31f);
-			glUniform3f(glGetUniformLocation(prog_obj, "material.diffuse"), 1.f, 0.5f, 0.31f);
-			glUniform3f(glGetUniformLocation(prog_obj, "material.specular"), 0.5f, 0.5f, 0.5f);
-			glUniform1f(glGetUniformLocation(prog_obj, "material.shininess"), 32.f);
-			glUniform1f(glGetUniformLocation(prog_obj, "material.alpha"), 1.f);
+		glUniformMatrix4fv(glGetUniformLocation(prog, "model"), 1, GL_FALSE, (GLfloat *)m1);
+			glUniform3f(glGetUniformLocation(prog, "material.ambient"), 1.f, 0.5f, 0.31f);
+			glUniform3f(glGetUniformLocation(prog, "material.diffuse"), 1.f, 0.5f, 0.31f);
+			glUniform3f(glGetUniformLocation(prog, "material.specular"), 0.5f, 0.5f, 0.5f);
+			glUniform1f(glGetUniformLocation(prog, "material.shininess"), 32.f);
+			glUniform1f(glGetUniformLocation(prog, "material.alpha"), 1.f);
 		glBindVertexArray(obj->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, len_ball);
 
-		glUniformMatrix4fv(glGetUniformLocation(prog_obj, "model"), 1, GL_FALSE, (GLfloat*)m2);
-			glUniform3f(glGetUniformLocation(prog_obj, "material.ambient"), 0.24f, 1.f, 0.78f);
-			glUniform3f(glGetUniformLocation(prog_obj, "material.diffuse"), 0.24f, 1.f, 0.78f);
-			glUniform3f(glGetUniformLocation(prog_obj, "material.specular"), 0.5f, 0.5f, 0.5f);
-			glUniform1f(glGetUniformLocation(prog_obj, "material.shininess"), 32.f);
-			glUniform1f(glGetUniformLocation(prog_obj, "material.alpha"), 0.5f);
+		prog = prog_obj_envmap;
+		glUseProgram(prog);
+			glUniform1i(glGetUniformLocation(prog, "shadow_map"), 0);
+			glUniform1i(glGetUniformLocation(prog, "shadow_map2"), 1);
+			glUniform1i(glGetUniformLocation(prog, "envmap"), 2);
+			glUniform3f(glGetUniformLocation(prog, "light[0].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog, "light[0].pos"), light_pos_x, light_pos_y, light_pos_z);
+			glUniform3f(glGetUniformLocation(prog, "light[1].ambient"), 0.2f, 0.2f, 0.2f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].diffuse"), 0.5f, 0.5f, 0.5f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].specular"), 1.f, 1.f, 1.f);
+			glUniform3f(glGetUniformLocation(prog, "light[1].pos"), light2_pos_x, light2_pos_y, light2_pos_z);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "proj"), 1, GL_FALSE, (GLfloat *)p);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view"), 1, GL_FALSE, (GLfloat *)v);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view_light_space[0]"), 1, GL_FALSE, (GLfloat *)vl);
+			glUniformMatrix4fv(glGetUniformLocation(prog, "view_light_space[1]"), 1, GL_FALSE, (GLfloat *)vl2);
+			glUniform3fv(glGetUniformLocation(prog, "camera_pos"), 1, camera.pos);
+
+		glUniformMatrix4fv(glGetUniformLocation(prog, "model"), 1, GL_FALSE, (GLfloat*)m2);
+			glUniform3f(glGetUniformLocation(prog, "material.ambient"), 0.24f, 1.f, 0.78f);
+			glUniform3f(glGetUniformLocation(prog, "material.diffuse"), 0.24f, 1.f, 0.78f);
+			glUniform3f(glGetUniformLocation(prog, "material.specular"), 0.5f, 0.5f, 0.5f);
+			glUniform1f(glGetUniformLocation(prog, "material.shininess"), 32.f);
+			glUniform1f(glGetUniformLocation(prog, "material.alpha"), 1.f);
 		glBindVertexArray(obj2->VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 

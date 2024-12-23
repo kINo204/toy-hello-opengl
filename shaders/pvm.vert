@@ -8,12 +8,14 @@ uniform mat4x4 view_light_space[2];
 uniform mat4x4 proj;
 
 out vec3 norm;
+out vec3 apos;
 out vec3 frag_pos;
 out vec4 frag_pos_light_space[2];
 
 void main() {
 	gl_Position = proj * view * model * vec4(a_pos, 1.0);
 	norm = a_norm;
+	apos = a_pos;
 	frag_pos = vec3(model * vec4(a_pos, 1.0));
 	frag_pos_light_space[0] = proj * view_light_space[0] * model * vec4(a_pos, 1.0);
 	frag_pos_light_space[1] = proj * view_light_space[1] * model * vec4(a_pos, 1.0);
